@@ -1,0 +1,10 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=${prefix}
+libdir=${exec_prefix}/@INSTALL_LIB_DIR@
+includedir=${exec_prefix}/include
+
+Name: @PROJECT_NAME@
+Description: DryMon Common libraries 
+Version: @DMCOM_VERSION@
+Libs: -L${libdir} -ldmcom
+Cflags: -I${includedir}

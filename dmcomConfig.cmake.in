@@ -1,0 +1,13 @@
+#  Defines variables for building application:
+#  DMCOM_INCLUDE_DIRS - include directories
+#  DMCOM_LIBRARIES    - libraries to link against
+
+# Compute paths
+get_filename_component(DMCOM_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+set(DMCOM_INCLUDE_DIRS "@DMCOM_INCLUDE_DIRS@")
+
+# Our library dependencies (contains definitions for IMPORTED targets)
+include("${DMCOM_CMAKE_DIR}/dmcomTargets.cmake")
+
+# These are IMPORTED targets created by dmcomTargets.cmake
+set(DMCOM_LIBRARIES dmcom)
