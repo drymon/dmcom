@@ -1,2 +1,2 @@
 # dmcom
-A common layer which is used for all DryMon projects
+A common code layer which is used for all DryMon projects
