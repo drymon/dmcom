@@ -193,6 +193,45 @@ static void dmlist_test_remove(void **state)
 	assert_true(num_node_tmp == num_nodes);
 }
 
+static void dmlist_test_head_tail(void **state)
+{
+	const int num_nodes = 50;
+	struct node_test data_test[num_nodes];
+	int i;
+	DMLIST_NEW(list);
+
+	for(i=0; i<num_nodes; i++){
+		data_test[i].index = i;
+		DMLIST_ADD_TAIL(&list, &data_test[i].list_node);
+	}
+	assert_true(DMLIST_HEAD(&list)== &data_test[0].list_node);
+	assert_true(DMLIST_TAIL(&list)== &data_test[num_nodes-1].list_node);
+}
+
+static void dmlist_test_empty_foreach_safe(void **state)
+{
+	const int num_nodes = 50;
+	struct node_test data_test[num_nodes];
+	struct dmlist *node, *tmp;
+	struct node_test *test_tmp;
+	int i;
+	DMLIST_NEW(list);
+
+	for(i=0; i<num_nodes; i++){
+		data_test[i].index = i;
+		DMLIST_ADD_TAIL(&list, &data_test[i].list_node);
+	}
+	assert_false(DMLIST_IS_EMPTY(&list));
+	i = 0;
+	DMLIST_FOREACH_SAFE(&list, node, tmp){
+		test_tmp = DMLIST_ENTRY(node, struct node_test, list_node);
+		assert_true(test_tmp->index == i);
+		DMLIST_REMOVE(node);
+		i++;
+	}
+	assert_true(DMLIST_IS_EMPTY(&list));
+}
+
 int main(void)
 {
 	const struct CMUnitTest tests[] = {
@@ -204,6 +243,8 @@ int main(void)
         cmocka_unit_test(dmlist_test_add_head),
         cmocka_unit_test(dmlist_test_add_head_link),
         cmocka_unit_test(dmlist_test_remove),
+        cmocka_unit_test(dmlist_test_head_tail),
+        cmocka_unit_test(dmlist_test_empty_foreach_safe),
     };
 
 	return cmocka_run_group_tests(tests, NULL, NULL);
