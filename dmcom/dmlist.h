@@ -8,33 +8,33 @@ struct dmlist {
 
 #define DMLIST_NEW(list)\
 	struct dmlist list = {\
-		.next = &list,	  \
-		.prev = &list	  \
+		.next = &list,\
+		.prev = &list\
 	}
 
-#define DMLIST_INIT(list) {						\
-		(list)->next = list;					\
-		(list)->prev = list;					\
+#define DMLIST_INIT(list){\
+		(list)->next = list;\
+		(list)->prev = list;\
 }
 
-#define DMLIST_ADD_TAIL(list, node) {			\
-		(node)->prev = (list)->prev->next;		\
-		(list)->prev->next = node;				\
-		(node)->next = list;					\
-		(list)->prev = node;					\
+#define DMLIST_ADD_TAIL(list, node){\
+		(node)->prev = (list)->prev;\
+		(list)->prev->next = node;\
+		(node)->next = list;\
+		(list)->prev = node;\
 }
 
-#define DMLIST_ADD_HEAD(list, node) {			\
-		(node)->next = (list)->next;			\
-		(node)->prev = list;					\
-		(list)->next->prev = node;				\
-		(list)->next = node;					\
+#define DMLIST_ADD_HEAD(list, node){\
+		(node)->next = (list)->next;\
+		(node)->prev = list;\
+		(list)->next->prev = node;\
+		(list)->next = node;\
 }
 
 #define DMLIST_REMOVE(node) {\
-	(node)->next->prev = (node)->prev;			\
-	(node)->prev->next = (node)->next;			\
-	(node)->next = (node)->prev = NULL;			\
+	(node)->next->prev = (node)->prev;\
+	(node)->prev->next = (node)->next;\
+	(node)->next = (node)->prev = NULL;\
 }
 
 #define DMLIST_HEAD(list) ((list)->next)
