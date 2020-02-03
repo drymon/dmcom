@@ -276,7 +276,6 @@ static void dmlist_test_add_after(void **state)
 	int i;
 	DMLIST_NEW(list);
 
-	printf("Start test 1\n");
 	//1. Add to first element 
 	for(i=0; i<num_nodes; i++){
 		data_test[i].index = i;
@@ -314,6 +313,19 @@ static void dmlist_test_add_after(void **state)
 	dmlist_assert_increase(&list, data_test, num_nodes);
 }
 
+static void dmlist_test_count(void **state)
+{
+	const int num_nodes = 50;
+	struct node_test data_test[num_nodes];
+	struct dmlist *node;
+	int count;
+	DMLIST_NEW(list);
+	
+	dmlist_fill_data_increase(&list, data_test, num_nodes);
+	DMLIST_COUNT(&list, node, count);
+	assert_int_equal(count, num_nodes);
+}
+
 int main(void)
 {
 	const struct CMUnitTest tests[] = {
@@ -328,6 +340,7 @@ int main(void)
         cmocka_unit_test(dmlist_test_remove_head_tail_empty),
         cmocka_unit_test(dmlist_test_add_before),
         cmocka_unit_test(dmlist_test_add_after),
+        cmocka_unit_test(dmlist_test_count),
     };
 
 	return cmocka_run_group_tests(tests, NULL, NULL);

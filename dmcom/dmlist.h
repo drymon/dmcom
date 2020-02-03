@@ -71,9 +71,12 @@ struct dmlist {
 	((type *)((char *)(ptr) - (unsigned long)(&((type *)0)->member)))
 
 #define DMLIST_FOREACH(list, node)\
-	for(node=(list)->next; node!=(list); node=node->next)
+	for(node = (list)->next; node != (list); node = node->next)
 
 #define DMLIST_FOREACH_SAFE(list, node, tmp)\
-	for(node=(list)->next, tmp=node->next; node!=(list); node=tmp, tmp=node->next)
+	for(node = (list)->next, tmp = node->next; node != (list); node = tmp, tmp = node->next)
+
+#define DMLIST_COUNT(list, node, count)\
+	for(count = 0, node = (list)->next; node != (list); node = node->next, count++)
 
 #endif /*__DMLIST_H_*/
