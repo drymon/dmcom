@@ -321,9 +321,17 @@ static void dmlist_test_count(void **state)
 	int count;
 	DMLIST_NEW(list);
 	
+	DMLIST_COUNT(&list, node, count);
+	assert_int_equal(count, 0);
 	dmlist_fill_data_increase(&list, data_test, num_nodes);
 	DMLIST_COUNT(&list, node, count);
 	assert_int_equal(count, num_nodes);
+	while(!DMLIST_IS_EMPTY(&list)){
+		node = DMLIST_HEAD(&list);
+		DMLIST_REMOVE(node);
+	}
+	DMLIST_COUNT(&list, node, count);
+	assert_int_equal(count, 0);
 }
 
 int main(void)
