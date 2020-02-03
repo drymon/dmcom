@@ -30,16 +30,16 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-file(GLOB dmcom_utest_SRC
-		  "utest/dmlist_utest.c"
-)
+#file(GLOB dmcom_utest_SRC
+#		  "utest/dmlist_utest.c"
+#)
 
 #add_library(dmcom SHARED ${dmcom_SRC})
 #set_target_properties(dmcom PROPERTIES VERSION ${DMCOM_VERSION} SOVERSION ${DMCOM_MAJOR_VERSION})
 #target_link_libraries(dmcom PRIVATE ${CMAKE_THREAD_LIBS_INIT})
 
-add_executable(dmcom_utest ${dmcom_utest_SRC})
-target_link_libraries(dmcom_utest ${CMOCKA_LIBRARIES})
+#add_executable(dmcom_utest ${dmcom_utest_SRC})
+#target_link_libraries(dmcom_utest ${CMOCKA_LIBRARIES})
 
 #install(
 #	TARGETS dmcom dmcom 
@@ -79,3 +79,12 @@ install(
 add_custom_target(uninstall
 	COMMAND xargs rm < ${CMAKE_BINARY_DIR}/install_manifest.txt
 )
+
+#Add test
+enable_testing()
+add_custom_target(build_tests)
+#add_dependencies(build_tests dmcom)
+set(CMAKE_CTEST_COMMAND ctest -V)
+add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
+add_dependencies(check build_tests)
+add_subdirectory(utest EXCLUDE_FROM_ALL)
