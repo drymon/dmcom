@@ -1,82 +1,109 @@
 #ifndef __DMLIST_H_
 #define __DMLIST_H_
 
-struct dmlist {
-	struct dmlist *next;
-	struct dmlist *prev;
+#include <stdbool.h>
+
+struct dmnode {
+	struct dmnode *next;
+	struct dmnode *prev;
 };
 
-#define DMLIST_NEW(list)\
-	struct dmlist list = {\
-		.next = &list,\
-		.prev = &list\
-	}
+struct dmlist {
+	struct dmnode node;
+	int nelems;
+};
 
-#define DMLIST_INIT(list){\
-	(list)->next = list;\
-	(list)->prev = list;\
+static inline void dmlist_init(struct dmlist *list)
+{
+	list->node.next = &list->node;
+	list->node.prev = &list->node;
+	list->nelems = 0;
 }
 
-#define DMLIST_ADD_TAIL(list, node){\
-	(node)->prev = (list)->prev;\
-	(list)->prev->next = node;\
-	(node)->next = list;\
-	(list)->prev = node;\
+static inline void dmlist_add_tail(struct dmlist *list, struct dmnode *node)
+{
+	node->prev = list->node.prev;
+	list->node.prev->next = node;
+	node->next = &list->node;
+	list->node.prev = node;
+	list->nelems++;
 }
 
-#define DMLIST_ADD_HEAD(list, node){\
-	(node)->next = (list)->next;\
-	(node)->prev = list;\
-	(list)->next->prev = node;\
-	(list)->next = node;\
+static inline void dmlist_add_head(struct dmlist *list, struct dmnode *node)
+{
+	node->next = list->node.next;
+	node->prev = &list->node;
+	list->node.next->prev = node;
+	list->node.next = node;
+	list->nelems++;
 }
 
-#define DMLIST_ADD_BEFORE(where, node){\
-	(node)->prev = (where)->prev;\
-	(node)->next = where;\
-	(where)->prev->next = node;\
-	(where)->prev = node;\
+static inline void dmlist_add_before(struct dmlist *list, struct dmnode *where, struct dmnode *node)
+{
+	node->prev = where->prev;
+	node->next = where;
+	where->prev->next = node;
+	where->prev = node;
+	list->nelems++;
 }
 
-#define DMLIST_ADD_AFTER(where, node){\
-	(node)->prev = where;\
-	(node)->next = (where)->next;\
-	(where)->next->prev = node;\
-	(where)->next = node;\
+static inline void dmlist_add_after(struct dmlist *list, struct dmnode *where, struct dmnode *node)
+{
+	node->prev = where;
+	node->next = where->next;
+	where->next->prev = node;
+	where->next = node;
+	list->nelems++;
 }
 
-#define DMLIST_MERGE(list, merge){\
-	if(!DMLIST_IS_EMPTY(merge)){\
-		(list)->prev->next = (merge)->next;\
-		(merge)->next->prev = (list)->prev;\
-		(merge)->prev->next = list;\
-		(list)->prev = (merge)->next;\
-		DMLIST_INIT(merge);\
-	}\
+static inline struct dmnode *dmlist_get_head(struct dmlist *list)
+{
+	return list->node.next;
 }
 
-#define DMLIST_REMOVE(node){\
-	(node)->next->prev = (node)->prev;\
-	(node)->prev->next = (node)->next;\
-	(node)->next = (node)->prev = NULL;\
+static inline struct dmnode *dmlist_get_tail(struct dmlist *list)
+{
+	return list->node.prev;
 }
 
-#define DMLIST_HEAD(list) ((list)->next)
+static inline bool dmlist_is_empty(struct dmlist *list)
+{
+	return (list->nelems==0);
+}
 
-#define DMLIST_TAIL(list) ((list)->prev)
+static inline int dmlist_get_nelems(struct dmlist *list)
+{
+	return list->nelems;
+}
 
-#define DMLIST_IS_EMPTY(list) ((list)->next==(list))
+static inline void dmlist_merge(struct dmlist *list, struct dmlist *merge)
+{
+	if(dmlist_is_empty(merge))
+		return;
+	
+	list->node.prev->next = merge->node.next;
+	merge->node.next->prev = list->node.prev;
+	merge->node.prev->next = &list->node;
+	list->node.prev = merge->node.next;
+	list->nelems += merge->nelems;
+	dmlist_init(merge);
+}
+
+static inline void dmlist_remove(struct dmlist *list, struct dmnode *node)
+{
+	node->next->prev = node->prev;
+	node->prev->next = node->next;
+	node->next = node->prev = NULL;
+	list->nelems--;
+}
 
 #define DMLIST_ENTRY(ptr, type, member)\
 	((type *)((char *)(ptr) - (unsigned long)(&((type *)0)->member)))
 
 #define DMLIST_FOREACH(list, node)\
-	for(node = (list)->next; node != (list); node = node->next)
+	for(node=(list)->node.next; node!=&(list)->node; node=node->next)
 
 #define DMLIST_FOREACH_SAFE(list, node, tmp)\
-	for(node = (list)->next, tmp = node->next; node != (list); node = tmp, tmp = node->next)
-
-#define DMLIST_COUNT(list, node, count)\
-	for(count = 0, node = (list)->next; node != (list); node = node->next, count++)
+	for(node=(list)->node.next, tmp=node->next; node!=&(list)->node; node=tmp,tmp=node->next)
 
 #endif /*__DMLIST_H_*/
