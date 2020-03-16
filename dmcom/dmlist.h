@@ -2,6 +2,7 @@
 #define __DMLIST_H_
 
 #include <stdbool.h>
+#include <stdlib.h>
 
 struct dmnode {
 	struct dmnode *next;
@@ -56,19 +57,23 @@ static inline void dmlist_add_after(struct dmlist *list, struct dmnode *where, s
 	list->nelems++;
 }
 
+static inline bool dmlist_is_empty(struct dmlist *list)
+{
+	return (list->nelems == 0);
+}
+
 static inline struct dmnode *dmlist_get_head(struct dmlist *list)
 {
+	if(dmlist_is_empty(list))
+		return NULL;
 	return list->node.next;
 }
 
 static inline struct dmnode *dmlist_get_tail(struct dmlist *list)
 {
+	if(dmlist_is_empty(list))
+		return NULL;
 	return list->node.prev;
-}
-
-static inline bool dmlist_is_empty(struct dmlist *list)
-{
-	return (list->nelems==0);
 }
 
 static inline int dmlist_get_nelems(struct dmlist *list)
