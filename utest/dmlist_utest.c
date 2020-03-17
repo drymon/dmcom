@@ -22,9 +22,9 @@ static void dmlist_test_init(void **state)
 {
 	struct dmlist list;
 	dmlist_init(&list);
-	assert_true(list.node.next==&list.node);
-	assert_true(list.node.prev==&list.node);
-	assert_int_equal(list.nelems, 0);
+	assert_true(list.anchor.next==&list.anchor);
+	assert_true(list.anchor.prev==&list.anchor);
+	assert_int_equal(list.num_nodes, 0);
 }
 
 static void dmlist_test_empty(void **state)
@@ -38,7 +38,7 @@ static void dmlist_assert_link(struct dmlist *list)
 {
 	struct dmnode *node, *last;
 	
-	last = &list->node;
+	last = &list->anchor;
 	//Verify if link is correct
 	DMLIST_FOREACH(list, node){
 		assert_true(last->next == node);
@@ -46,8 +46,8 @@ static void dmlist_assert_link(struct dmlist *list)
 		last = node;
 	}
 
-	assert_true(list->node.prev == last);
-	assert_true(last->next == &list->node);
+	assert_true(list->anchor.prev == last);
+	assert_true(last->next == &list->anchor);
 }
 
 static void dmlist_assert_increase(struct dmlist *list,
@@ -254,7 +254,7 @@ static void dmlist_test_add_before(void **state)
 			continue;
 		dmlist_add_tail(&list, &data_test[i].node);
 	}
-	dmlist_add_before(&list, &list.node, &data_test[num_nodes - 1].node);
+	dmlist_add_before(&list, &list.anchor, &data_test[num_nodes - 1].node);
 	//Verify
 	dmlist_assert_increase(&list, data_test, num_nodes);
 	
@@ -287,7 +287,7 @@ static void dmlist_test_add_after(void **state)
 		dmlist_add_tail(&list, &data_test[i].node);
 	}
 	
-	dmlist_add_after(&list, &list.node, &data_test[0].node);
+	dmlist_add_after(&list, &list.anchor, &data_test[0].node);
 	//Verify
 	dmlist_assert_increase(&list, data_test, num_nodes);
 
@@ -325,16 +325,16 @@ static void dmlist_test_count(void **state)
 	struct dmlist list;
 	dmlist_init(&list);
 	
-	count=dmlist_get_nelems(&list);
+	count=dmlist_get_num_nodes(&list);
 	assert_int_equal(count, 0);
 	dmlist_fill_data_increase(&list, data_test, num_nodes);
-	count = dmlist_get_nelems(&list);
+	count = dmlist_get_num_nodes(&list);
 	assert_int_equal(count, num_nodes);
 	while(!dmlist_is_empty(&list)){
 		node = dmlist_get_head(&list);
 		dmlist_remove(&list, node);
 	}
-	count = dmlist_get_nelems(&list);
+	count = dmlist_get_num_nodes(&list);
 	assert_int_equal(count, 0);
 }
 
