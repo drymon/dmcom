@@ -19,24 +19,19 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pipe -O2 -Wall -fexceptions -fstack-protect
 
 find_package(cmocka REQUIRED)
 
-#file(GLOB dmcom_SRC
-#	"base/*.c"
-#	"base/${SPECIFIC_DIR}/*.c"
-#)
-#list(SORT dmcom_SRC)
+file(GLOB dmcom_SRC
+	"dmcom/src/dmtimer.c"
+)
+list(SORT dmcom_SRC)
 
 include_directories(
-	${CMOCKA_INCLUDE_DIRS}
-	${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}/dmcom
+	${CMAKE_CURRENT_SOURCE_DIR}/dmcom/src
 )
 
-#file(GLOB dmcom_utest_SRC
-#		  "utest/dmlist_utest.c"
-#)
-
-#add_library(dmcom SHARED ${dmcom_SRC})
-#set_target_properties(dmcom PROPERTIES VERSION ${DMCOM_VERSION} SOVERSION ${DMCOM_MAJOR_VERSION})
-#target_link_libraries(dmcom PRIVATE ${CMAKE_THREAD_LIBS_INIT})
+add_library(dmcom SHARED ${dmcom_SRC})
+set_target_properties(dmcom PROPERTIES VERSION ${DMCOM_VERSION} SOVERSION ${DMCOM_MAJOR_VERSION})
+target_link_libraries(dmcom PRIVATE) # ${CMAKE_THREAD_LIBS_INIT})
 
 #add_executable(dmcom_utest ${dmcom_utest_SRC})
 #target_link_libraries(dmcom_utest ${CMOCKA_LIBRARIES})

@@ -1,7 +1,5 @@
-#include <setjmp.h>
-#include <stdio.h>
-#include "dmcom/dmlist.h"
-#include <cmocka.h>
+#include "utest_header.h"
+#include "dmlist.h"
 
 struct node_test {
 	int index;
