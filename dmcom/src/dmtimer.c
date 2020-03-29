@@ -5,6 +5,14 @@
 #include "dmmem.h"
 #include "dmtimer_priv.h"
 
+#define TIMER_CLOCK_GETTS64_DEFAULT dmclock_getts64
+#define TIMER_MALLOC_DEFAULT DMEM_ALLOC
+#define TIMER_FREE_DEFAULT DMEM_FREE
+
+static dmclock_getts64_t g_clock_getts64 = TIMER_CLOCK_GETTS64_DEFAULT;
+static dmem_alloc_t g_malloc = (dmem_alloc_t)TIMER_MALLOC_DEFAULT;
+static dmem_free_t g_free = TIMER_FREE_DEFAULT;
+
 struct dmtimer_group {
 	struct dmlist timer_list;
 	int ntimers;
@@ -21,36 +29,43 @@ struct dmtimer {
 	struct dmtimer_group *group;
 };
 
-#define TIMER_OPERATION_DEFAULT { \
-	dmclock_getts64, \
-	dmmem_alloc, \
-	dmmem_free \
+void dmtimer_set_clock_getts64(dmclock_getts64_t getts64)
+{
+	if(getts64)
+		g_clock_getts64 = getts64;
 }
 
-static struct dmtimer_op g_operation = TIMER_OPERATION_DEFAULT; 
-
-//This function allow double test to inject its operation
-void dmtimer_override_op(struct dmtimer_op *op)
+void dmtimer_set_malloc(dmem_alloc_t malloc)
 {
-	if(op->gettime_ns)
-		g_operation.gettime_ns = op->gettime_ns;
-	if(op->malloc)
-		g_operation.malloc = op->malloc;
-	if(op->free)
-		g_operation.free = op->free;
+	if(malloc)
+		g_malloc = malloc;
 }
 
-void dmtimer_restore_op(void)
+void dmtimer_set_free(dmem_free_t free)
 {
-	struct dmtimer_op op = TIMER_OPERATION_DEFAULT;
-	
-	memcpy(&g_operation, &op, sizeof(op));
+	if(free)
+		g_free = free;
+}
+
+void dmtimer_set_clock_getts64_default(void)
+{
+	g_clock_getts64 = TIMER_CLOCK_GETTS64_DEFAULT; 
+}
+
+void dmtimer_set_malloc_default(void)
+{
+	g_malloc = (dmem_alloc_t)TIMER_MALLOC_DEFAULT;
+}
+
+void dmtimer_set_free_default(void)
+{
+	g_free = TIMER_FREE_DEFAULT; 
 }
 
 //Timer manager
 struct dmtimer_group *dmtimer_group_create(void)
 {
-	struct dmtimer_group *group = g_operation.malloc(sizeof *group);
+	struct dmtimer_group *group = g_malloc(sizeof *group);
 	if(!group)
 		return NULL;
 	memset(group, 0, sizeof *group);
@@ -69,13 +84,13 @@ void dmtimer_group_destroy(struct dmtimer_group *group)
 	//Stop will remove the timer out of the list
 	while((node = dmlist_get_head(&group->timer_list)))
 		dmtimer_remove_group((struct dmtimer *)node);
-	g_operation.free(group);
+	g_free(group);
 }
 
 int dmtimer_group_schedule(struct dmtimer_group *group, int *next_expire_us)
 {
 	struct dmtimer *timer;
-	uint64_t cts = g_operation.gettime_ns();
+	uint64_t cts = g_clock_getts64();
 	
 	if(!group || !next_expire_us)
 		return DM_E_PARAM;
@@ -131,7 +146,7 @@ int dmtimer_group_ntimers(struct dmtimer_group *group)
 //Timer modules
 struct dmtimer *dmtimer_create(void)
 {
-	struct dmtimer *timer = g_operation.malloc(sizeof *timer);
+	struct dmtimer *timer = g_malloc(sizeof *timer);
 	if(!timer)
 		return NULL;
 	memset(timer, 0, sizeof *timer);
@@ -166,7 +181,7 @@ void dmtimer_destroy(struct dmtimer *timer)
 	if(!timer)
 		return;
 	dmtimer_stop(timer);
-	g_operation.free(timer);
+	g_free(timer);
 }
 
 void dmtimer_enable_repeat(struct dmtimer *timer)
@@ -217,7 +232,7 @@ int dmtimer_start(struct dmtimer *timer, int timeval_us)
 
 	group = timer->group;
 	timer->timeval_us = timeval_us;
-	timer->expire_ts = g_operation.gettime_ns() + (uint64_t)timeval_us * DMCLOCK_US_TO_NS;
+	timer->expire_ts = g_clock_getts64() + (uint64_t)timeval_us * DMCLOCK_US_TO_NS;
 
 	//Add timer in increase order of expire_ts
 	last_timer = (struct dmtimer *)dmlist_get_tail(&group->timer_list);
@@ -256,7 +271,7 @@ void dmtimer_stop(struct dmtimer *timer)
 
 int dmtimer_get_remain(struct dmtimer *timer, int *remain_us)
 {
-	uint64_t cts = g_operation.gettime_ns();
+	uint64_t cts = g_clock_getts64();
 	
 	if(!timer || !remain_us)
 		return DM_E_PARAM;

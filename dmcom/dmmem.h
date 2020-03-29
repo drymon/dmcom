@@ -3,15 +3,13 @@
 
 #include <stdlib.h>
 
-static inline void *dmmem_alloc(int size)
-{
-	return malloc(size);
-}
+#ifndef DMEM_ALLOC
+#define DMEM_ALLOC malloc
+#endif
 
-static inline void dmmem_free(void *mem)
-{
-	free(mem);
-}
+#ifndef DMEM_FREE
+#define DMEM_FREE free
+#endif
 
 #if 0
 #define DMMEM_HEAD_SIZE 8

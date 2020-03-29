@@ -2,14 +2,14 @@
 #define __DMTIMER_PRIV_H_
 
 #include <stdint.h>
+#include "dmtypes.h"
 
-struct dmtimer_op { //Virtual functions for timer operation
-	uint64_t (*gettime_ns)(void);
-	void* (*malloc)(int size);
-	void (*free)(void *mem);
-};
-
-void dmtimer_override_op(struct dmtimer_op *op);
-void dmtimer_restore_op(void);
+void dmtimer_set_clock_getts64(dmclock_getts64_t clock_getts64);
+void dmtimer_set_malloc(dmem_alloc_t malloc);
+void dmtimer_set_free(dmem_free_t free);
+void dmtimer_set_clock_getts64_default(void);
+void dmtimer_set_malloc_default(void);
+void dmtimer_set_free_default(void);
 
 #endif //__DMTIMER_PRIV_H_
+

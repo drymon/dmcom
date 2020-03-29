@@ -18,12 +18,11 @@ static void *null_malloc(int size)
 static void dmtimer_test_group_create_null_memory(void **state)
 {
 	struct dmtimer_group *group;
-	struct dmtimer_op op = {.malloc = null_malloc};
 
-	dmtimer_override_op(&op);
+	dmtimer_set_malloc(null_malloc);
 	group = dmtimer_group_create();
 	assert_null(group);
-	dmtimer_restore_op();
+	dmtimer_set_malloc_default();
 }
 
 static void dmtimer_test_create(void **state)
@@ -37,12 +36,11 @@ static void dmtimer_test_create(void **state)
 static void dmtimer_test_create_null_memory(void **state)
 {
 	struct dmtimer *timer;
-	struct dmtimer_op op = {.malloc = null_malloc};
 	
-	dmtimer_override_op(&op);
+	dmtimer_set_malloc(null_malloc);
 	timer = dmtimer_create();
 	assert_null(timer);
-	dmtimer_restore_op();
+	dmtimer_set_malloc_default();
 }
 
 static void dmtimer_test_group_add_create(struct dmtimer_group **group, struct dmtimer **timer)
@@ -166,10 +164,7 @@ static void dmtimer_test_multi_group_switch_timer(void **state)
 	dmtimer_destroy(timer);
 }
 
-static void expire_param_invalid(struct dmtimer *timer, void *cbarg)
-{
-
-}
+static void expire_param_invalid(struct dmtimer *timer, void *cbarg){}
 
 static void dmtimer_test_invalid_param(void **state)
 {
@@ -208,6 +203,16 @@ static void dmtimer_test_invalid_param(void **state)
 	dmtimer_destroy(timer);
 }
 
+static void dmtimer_test_repeat_enable_disable(void **state)
+{
+	struct dmtimer *timer = dmtimer_create();
+	assert_false(dmtimer_is_repeat(timer));
+	dmtimer_enable_repeat(timer);
+	assert_true(dmtimer_is_repeat(timer));
+	dmtimer_disable_repeat(timer);
+	assert_false(dmtimer_is_repeat(timer));
+}
+
 int main(void)
 {
 	const struct CMUnitTest tests[] = {
@@ -220,6 +225,7 @@ int main(void)
 		cmocka_unit_test(dmtimer_test_group_add_remove_multi_timers),
 		cmocka_unit_test(dmtimer_test_multi_group_switch_timer),
 		cmocka_unit_test(dmtimer_test_invalid_param),
+		cmocka_unit_test(dmtimer_test_repeat_enable_disable),
     };
 
 	return cmocka_run_group_tests(tests, NULL, NULL);

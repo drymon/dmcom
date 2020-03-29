@@ -7,7 +7,7 @@
 #define DM_E_WSTATE -3 //Request for object at wrong state
 #define DM_E_EXIST -4 //Request for existed object
 #define DM_E_NEXIST -5 //Request for non-existed object
-#define DM_E_TIMEOUT -5 //Request timeout 
-#define DM_E_TM_UNGRP -6 //Timer is not added to a group
+#define DM_E_TIMEOUT -6 //Request timeout 
+#define DM_E_TM_UNGRP -7 //Timer is not added to a group
 
 #endif //__DMERROR_H_
