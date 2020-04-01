@@ -1,5 +1,6 @@
 #include "utest_header.h"
 #include "dmtimer.h"
+#include "dmtimer_group.h"
 #include "dmtimer_priv.h"
 
 static void dmtimer_test_group_create(void **state)

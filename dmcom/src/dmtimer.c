@@ -1,6 +1,7 @@
 #include <string.h>
 #include "dmlist.h"
 #include "dmtimer.h"
+#include "dmtimer_group.h"
 #include "dmclock.h"
 #include "dmmem.h"
 #include "dmtimer_priv.h"
